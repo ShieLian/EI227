@@ -25,14 +25,14 @@ unsigned char clock500ms_flag=0;
 unsigned int test_counter=0;
 // 8位数码管显示的数字或字母符号
 // 注：板上数码位从左到右序号排列为4、5、6、7、0、1、2、3
-unsigned char digit[8]={' ',' ',' ',' ','.',' ',' ',' '};
+unsigned char digit[8]={' ','-',0x80,'1','G','A','I','N'};
 // 8位小数点 1亮  0灭
 // 注：板上数码位小数点从左到右序号排列为4、5、6、7、0、1、2、3
 unsigned char pnt=0x04;
 // 8个LED指示灯状态，每个灯4种颜色状态，0灭，1绿，2红，3橙（红+绿）
 // 注：板上指示灯从左到右序号排列为7、6、5、4、3、2、1、0
 //     对应元件LED8、LED7、LED6、LED5、LED4、LED3、LED2、LED1
-unsigned char led[]={0,0,1,1,2,2,3,3};
+unsigned char led[]={0,0,0,0,0,0,0,0};
 // 当前按键值
 unsigned char key_code=0;
 bool upgraded=false;
@@ -118,6 +118,29 @@ __interrupt void Timer0_A0 (void)
 //         主程序           //
 //////////////////////////////
 
+void update_level(void){
+    if(!upgraded){
+        if(key_code==1){
+            upgraded=true;
+            --level;
+            if(level==0)
+                level=15;
+        } else if(key_code==2){
+            upgraded=true;
+            ++level;
+            if(level==16)
+                level=1;
+        } else{
+            upgraded=false;
+        }
+    } else{
+        if(key_code!=1 && key_code!=2)
+            upgraded=false;
+    }
+    digit[3] = (digit[3]&0x80) + level%10;
+    digit[2] = (digit[2]&0x80) + level/10;
+}
+
 int main(void)
 {
 	unsigned char i=0,temp;
@@ -133,36 +156,17 @@ int main(void)
 		   	// 每0.1秒累加计时值在数码管上以十进制显示，有键按下时暂停计时
             if (++test_counter>=10000) test_counter=0;
             //更新增益等级
-            if(!upgraded){
-                if(key_code==1){
-                    upgraded=true;
-                    --level;
-                    if(level==0)
-                        level=15;
-                } else if(key_code==2){
-                    upgraded=true;
-                    ++level;
-                    if(level==16)
-                        level=1;
-                } else{
-                    upgraded=false;
-                }
-            } else{
-                if(key_code!=1 && key_code!=2)
-                    upgraded=false;
-            }
-            //
-            digit[1] = level%10;
-            digit[0] = level/10;
+            update_level();
 		}
 
 		if (clock500ms_flag==1)   // 检查0.5秒定时是否到
 		{
 			clock500ms_flag=0;
 			// 8个指示灯以走马灯方式，每0.5秒向右（循环）移动一格
+			/*
 			temp=led[0];
 			for (i=0;i<7;i++) led[i]=led[i+1];
-			led[7]=temp;
+			led[7]=temp;*/
 		}
 	}
 }
