@@ -38,10 +38,33 @@ unsigned char key_code=0;
 bool upgraded=false;
 unsigned short level=1;
 
+enum PIN {P1,P2};
 //////////////////////////////
 //       系统初始化         //
 //////////////////////////////
+void set_input(enum PIN pin,unsigned char port){
+    unsigned char pinOUT,pinDIR,pinREN;
+    if(pin==P1){
+        pinOUT=P1OUT;
+        pinDIR=P1DIR;
+        pinREN=P1REN;
+    } else{
+        pinOUT=P2OUT;
+        pinDIR=P2DIR;
+        pinREN=P2REN;
+    }
+    pinDIR &= !port;
+    pinOUT |= port;
+    pinREN |= port;
+}
 
+void set_output(enum PIN pin,unsigned char port){
+    if(pin==P1){
+        P1DIR |= port;
+    } else{
+        P2DIR |= port;
+    }
+}
 //  I/O端口和引脚初始化
 void Init_Ports(void)
 {
@@ -49,8 +72,8 @@ void Init_Ports(void)
 	  //因两者默认连接外晶振，故需此修改
 
 	P2DIR |= BIT7 + BIT6 + BIT5; //P2.5、P2.6、P2.7 设置为输出
-	  //本电路板中三者用于连接显示和键盘管理器TM1638，工作原理详见其DATASHEET
- }
+	set_output(P1,0x7);
+}
 
 //  定时器TIMER0初始化，循环定时20ms
 void Init_Timer0(void)
@@ -139,11 +162,13 @@ void update_level(void){
     }
     digit[3] = (digit[3]&0x80) + level%10;
     digit[2] = (digit[2]&0x80) + level/10;
+
+    P1OUT=(unsigned char)((P1OUT & 0xF0) + (level & 0x0F));
 }
 
 int main(void)
 {
-	unsigned char i=0,temp;
+	//unsigned char i=0,temp;
 	Init_Devices();
 	while (clock100ms<3);   // 延时60ms等待TM1638上电完成
 	init_TM1638();	    //初始化TM1638
@@ -154,7 +179,7 @@ int main(void)
 		{
 			clock100ms_flag=0;
 		   	// 每0.1秒累加计时值在数码管上以十进制显示，有键按下时暂停计时
-            if (++test_counter>=10000) test_counter=0;
+            //if (++test_counter>=10000) test_counter=0;
             //更新增益等级
             update_level();
 		}
