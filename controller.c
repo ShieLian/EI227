@@ -1,7 +1,7 @@
-//本程序时钟采用内部RC振荡器。     DCO：8MHz,供CPU时钟;  SMCLK：1MHz,供定时器时钟
+﻿//本程序时钟采用内部RC振荡器。     DCO：8MHz,供CPU时钟;  SMCLK：1MHz,供定时器时钟
 #include <msp430g2553.h>
-#include <tm1638.h>  //与TM1638有关的变量及函数定义均在该H文件中
-
+#include <tm1638.h>
+#include <music.h>
 //////////////////////////////
 //         常量定义         //
 //////////////////////////////
@@ -34,7 +34,7 @@ unsigned char pnt=0x04;
 //     对应元件LED8、LED7、LED6、LED5、LED4、LED3、LED2、LED1
 unsigned char led[]={0,0,0,0,0,0,0,0};
 // 当前按键值
-unsigned char key_code=0;
+extern unsigned char key_code=0;
 bool upgraded=false;
 unsigned short level=1;
 
@@ -73,6 +73,7 @@ void Init_Ports(void)
 
 	P2DIR |= BIT7 + BIT6 + BIT5; //P2.5、P2.6、P2.7 设置为输出
 	set_output(P1,0xF);
+	set_output(P2,0x2);
 }
 
 //  定时器TIMER0初始化，循环定时20ms
@@ -132,9 +133,9 @@ __interrupt void Timer0_A0 (void)
 	// 检查当前键盘输入，0代表无键操作，1-16表示有对应按键
 	//   键号显示在两位数码管上
 	key_code=TM1638_Readkeyboard();
-	//digit[6]=key_code%10;
-	//digit[5]=key_code/10;
 
+	//
+	update_music();
 }
 
 //////////////////////////////
@@ -170,6 +171,7 @@ int main(void)
 {
 	//unsigned char i=0,temp;
 	Init_Devices();
+	init_music();
 	while (clock100ms<3);   // 延时60ms等待TM1638上电完成
 	init_TM1638();	    //初始化TM1638
 
@@ -179,7 +181,6 @@ int main(void)
 		{
 			clock100ms_flag=0;
 		   	// 每0.1秒累加计时值在数码管上以十进制显示，有键按下时暂停计时
-            //if (++test_counter>=10000) test_counter=0;
             //更新增益等级
             update_level();
 		}
@@ -187,11 +188,8 @@ int main(void)
 		if (clock500ms_flag==1)   // 检查0.5秒定时是否到
 		{
 			clock500ms_flag=0;
-			// 8个指示灯以走马灯方式，每0.5秒向右（循环）移动一格
-			/*
-			temp=led[0];
-			for (i=0;i<7;i++) led[i]=led[i+1];
-			led[7]=temp;*/
 		}
+
+		update_music_ctrl();
 	}
 }
