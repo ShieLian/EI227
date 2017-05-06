@@ -2,6 +2,7 @@
 #include <msp430g2553.h>
 #include <tm1638.h>
 #include <music.h>
+#include <remote_control.h>
 //////////////////////////////
 //         常量定义         //
 //////////////////////////////
@@ -136,6 +137,7 @@ __interrupt void Timer0_A0 (void)
 
 	//
 	update_music();
+	update_remote_inter();
 }
 
 //////////////////////////////
@@ -191,5 +193,6 @@ int main(void)
 		}
 
 		update_music_ctrl();
+		update_remote_ctrl();
 	}
 }
