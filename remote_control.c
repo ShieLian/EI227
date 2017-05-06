@@ -7,7 +7,7 @@ typedef short bool;
 
 int pulse_counter=0;
 bool pulse_done=false;
-int threshold=10;//!
+const int threshold=10;//!
 /**
  * ≥ı ºªØ
  */
@@ -32,8 +32,12 @@ void update_remote_ctrl(){
     if(pulse_done){
         if(pulse_counter<threshold){
             --level;
+            if(level==0)
+                level=15;
         } else {
             ++level;
+            if(level==16)
+                level=1;
         }
         pulse_counter=0;
         pulse_done=false;
