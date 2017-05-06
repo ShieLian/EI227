@@ -1,6 +1,6 @@
 #include <msp430g2553.h>
 #include <controller.h>
-//P2.1
+
 void Init_Ports_music(void)
 {
 	set_output(P2,0x2);   //将P2.1设置为输出
@@ -15,7 +15,7 @@ const unsigned int music_data2[][2] =   //乐谱：全场最佳。
      //{220,800}, {327,200},{440,100},{392,100},{327,400},{220,400},{262,200},{392,100},{327,100},{294,600},{262,100},{247,100},{294,200},{262,100},{247,100},{220,600},{563,100},{494,100},{440,400},{440,400},{494,800},{0,0}
 };
 
-const unsigned int music_daTA2[][2] =   //乐谱：荷塘月色。
+const unsigned int music_data1[][2] =   //乐谱：荷塘月色。
 {
      {523,600},{784,200},{523,200},{784,200},{523,200},{587,200},{659,1600},
      {523,600},{784,200},{523,200},{784,200},{523,200},{587,200},{587,1600},
@@ -54,22 +54,22 @@ unsigned int audio_frequency = 0;  //当前音频频率
 unsigned int audio_dura = 0;  //当前音频持续时间
 unsigned int audio_ptr = 0;  //辅助读谱指针
 unsigned int play_flag = 0;  //音乐播放标志。0时不播放，1时开始播放
-void Init_Timer2(void)   //初始化计数器A1
+void Init_Timer1(void)   //初始化计数器A1
 {
-    TA2CTL = TASSEL_2 + MC_1;
-    TA2CCTL1 = OUTMOD_7;
-    TA2CCR0 = 1000000/440;  //设定周期，100000为定时器1的时钟频率，440为音频频率
-    TA2CCR1 = TA2CCR0/2;  //设置占空比为50%
+    TA1CTL = TASSEL_2 + MC_1;
+    TA1CCTL1 = OUTMOD_7;
+    TA1CCR0 = 1000000/440;  //设定周期，100000为定时器1的时钟频率，440为音频频率
+    TA1CCR1 = TA1CCR0/2;  //设置占空比为50%
 }
 
 void init_music(void)
 {
-    Init_Timer2();          //调用函数，初始化定时器1
+    Init_Timer1();          //调用函数，初始化定时器1
     Init_Ports_music();
 }
 
 //////////////////////////////
-//      中断服务程序
+//      中断服务程序                   //
 //////////////////////////////
 /**
  *计时器A0触发中断
@@ -79,24 +79,24 @@ void update_music(void)
 	//音乐播放代码段
 	if(play_flag == 3)
 	{
-	    if(audio_dura != 0) --audio_dura;
+	    if(audio_dura != 0) audio_dura --;
 	    else
 	    {
-	        TA2CTL = 0;   //计时器A1停止
-	        audio_frequency = music_daTA2[audio_ptr][0];  //读取下一个音符的频率和持续时间（下行）
-	        audio_dura = music_daTA2[audio_ptr][1]/15;  //改变20可以调整节奏快慢
+	        TA1CTL = 0;   //计时器A1停止
+	        audio_frequency = music_data1[audio_ptr][0];  //读取下一个音符的频率和持续时间（下行）
+	        audio_dura = music_data1[audio_ptr][1]/15;  //改变20可以调整节奏快慢
 	        if(audio_frequency == 0 && audio_dura == 0) {audio_ptr = 0; play_flag = 0;}  //音乐播放结束，指针归0
 	        else
 	        {
-	            ++audio_ptr;  //指针后移一位
-	            if(audio_frequency == 0) TA2CTL = 0;
+	            audio_ptr++;  //指针后移一位
+	            if(audio_frequency == 0) TA1CTL = 0;
 	            else{
 	            //启动计时器A1
 	            P2SEL |= BIT1;  //将P2.1作为输出口
 	            P2DIR |= BIT1;
-	            TA2CCR0 = 1000000/audio_frequency;
-	            TA2CCR1 = TA2CCR0/2;
-	            TA2CTL = TASSEL_2 + MC_1;  //Source:SMCLK = 1MHz, PWM mode
+	            TA1CCR0 = 1000000/audio_frequency;
+	            TA1CCR1 = TA1CCR0/2;
+	            TA1CTL = TASSEL_2 + MC_1;  //Source:SMCLK = 1MHz, PWM mode
 	            }
 	        }
 	    }
@@ -106,21 +106,21 @@ void update_music(void)
         if(audio_dura != 0) audio_dura --;
         else
         {
-            TA2CTL = 0;   //计时器A1停止
+            TA1CTL = 0;   //计时器A1停止
             audio_frequency = music_data2[audio_ptr][0];  //读取下一个音符的频率和持续时间（下行）
             audio_dura = music_data2[audio_ptr][1]/15;  //改变20可以调整节奏快慢
             if(audio_frequency == 0 && audio_dura == 0) {audio_ptr = 0; play_flag = 0;}  //音乐播放结束，指针归0
             else
             {
                 audio_ptr++;  //指针后移一位
-                if(audio_frequency == 0) TA2CTL = 0;
+                if(audio_frequency == 0) TA1CTL = 0;
                 else{
                 //启动计时器A1
                 P2SEL |= BIT1;  //将P2.1作为输出口
                 P2DIR |= BIT1;
-                TA2CCR0 = 1000000/audio_frequency;
-                TA2CCR1 = TA2CCR0/2;
-                TA2CTL = TASSEL_2 + MC_1;  //Source:SMCLK = 1MHz, PWM mode
+                TA1CCR0 = 1000000/audio_frequency;
+                TA1CCR1 = TA1CCR0/2;
+                TA1CTL = TASSEL_2 + MC_1;  //Source:SMCLK = 1MHz, PWM mode
                 }
             }
         }
@@ -133,8 +133,8 @@ void update_music(void)
  */
 void update_music_ctrl(void)
 {
-    if(key_code == 3) {TA2CTL = 0; audio_ptr = 0; play_flag = 3;}  //将3号按钮作为播放音乐1的控制开关
-    else if(key_code == 4) {TA2CTL = 0; audio_ptr = 0; play_flag = 4;}  //将4号按钮作为播放音乐2的控制开关
-    else if(key_code == 8) {TA2CTL = 0; audio_ptr = 0; play_flag = 0;}
+    if(key_code == 3 && play_flag != 3) {TA1CTL = 0; audio_ptr = 0; play_flag = 3;}  //将3号按钮作为播放音乐1的控制开关
+    if(key_code == 4 && play_flag != 4) {TA1CTL = 0; audio_ptr = 0; play_flag = 4;}  //将4号按钮作为播放音乐2的控制开关
+    if(key_code == 8) {TA1CTL = 0; audio_ptr = 0; play_flag = 0;}
 }
 

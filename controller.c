@@ -73,8 +73,8 @@ void Init_Ports(void)
 	  //因两者默认连接外晶振，故需此修改
 
 	P2DIR |= BIT7 + BIT6 + BIT5; //P2.5、P2.6、P2.7 设置为输出
-	set_output(P1,0xF);//P1.0~P1.3
-	//set_output(P2,0x2);//P2.1
+	set_output(P1,0xF);
+	set_output(P2,0x2);
 }
 
 //  定时器TIMER0初始化，循环定时20ms
@@ -174,7 +174,6 @@ int main(void)
 	//unsigned char i=0,temp;
 	Init_Devices();
 	init_music();
-	init_remote_control();
 	while (clock100ms<3);   // 延时60ms等待TM1638上电完成
 	init_TM1638();	    //初始化TM1638
 
