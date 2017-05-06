@@ -73,8 +73,7 @@ void Init_Ports(void)
 	  //因两者默认连接外晶振，故需此修改
 
 	P2DIR |= BIT7 + BIT6 + BIT5; //P2.5、P2.6、P2.7 设置为输出
-	set_output(P1,0xF);
-	set_output(P2,0x2);
+	set_output(P2,0xF);
 }
 
 //  定时器TIMER0初始化，循环定时20ms
@@ -166,7 +165,7 @@ void update_level(void){
     digit[3] = (digit[3]&0x80) + level%10;
     digit[2] = (digit[2]&0x80) + level/10;
 
-    P1OUT=(unsigned char)((P1OUT & 0xF0) + (level & 0x0F));
+    P2OUT=(unsigned char)((P2OUT & 0xF0) + (level & 0x0F));
 }
 
 int main(void)
