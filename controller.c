@@ -174,6 +174,7 @@ int main(void)
 	//unsigned char i=0,temp;
 	Init_Devices();
 	init_music();
+	init_remote_control();
 	while (clock100ms<3);   // 延时60ms等待TM1638上电完成
 	init_TM1638();	    //初始化TM1638
 

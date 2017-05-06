@@ -3,7 +3,7 @@
 
 void Init_Ports_music(void)
 {
-	set_output(P2,0x2);   //将P2.1设置为输出
+	set_output(P2,BIT4);   //将P2.1设置为输出
 }
 
 //****************************************************************************
@@ -57,9 +57,9 @@ unsigned int play_flag = 0;  //音乐播放标志。0时不播放，1时开始播放
 void Init_Timer1(void)   //初始化计数器A1
 {
     TA1CTL = TASSEL_2 + MC_1;
-    TA1CCTL1 = OUTMOD_7;
+    TA1CCTL2 = OUTMOD_7;
     TA1CCR0 = 1000000/440;  //设定周期，100000为定时器1的时钟频率，440为音频频率
-    TA1CCR1 = TA1CCR0/2;  //设置占空比为50%
+    TA1CCR2 = TA1CCR0/2;  //设置占空比为50%
 }
 
 void init_music(void)
@@ -92,10 +92,8 @@ void update_music(void)
 	            if(audio_frequency == 0) TA1CTL = 0;
 	            else{
 	            //启动计时器A1
-	            P2SEL |= BIT1;  //将P2.1作为输出口
-	            P2DIR |= BIT1;
 	            TA1CCR0 = 1000000/audio_frequency;
-	            TA1CCR1 = TA1CCR0/2;
+	            TA1CCR2 = TA1CCR0/2;
 	            TA1CTL = TASSEL_2 + MC_1;  //Source:SMCLK = 1MHz, PWM mode
 	            }
 	        }
@@ -119,7 +117,7 @@ void update_music(void)
                 P2SEL |= BIT1;  //将P2.1作为输出口
                 P2DIR |= BIT1;
                 TA1CCR0 = 1000000/audio_frequency;
-                TA1CCR1 = TA1CCR0/2;
+                TA1CCR2 = TA1CCR0/2;
                 TA1CTL = TASSEL_2 + MC_1;  //Source:SMCLK = 1MHz, PWM mode
                 }
             }
