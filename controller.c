@@ -3,6 +3,7 @@
 #include <tm1638.h>
 #include <music.h>
 #include <remote_control.h>
+#include <autoamp.h>
 //////////////////////////////
 //         常量定义         //
 //////////////////////////////
@@ -26,14 +27,11 @@ unsigned char clock500ms_flag=0;
 unsigned int test_counter=0;
 // 8位数码管显示的数字或字母符号
 // 注：板上数码位从左到右序号排列为4、5、6、7、0、1、2、3
-unsigned char digit[8]={' ','-',0x80,'1','G','A','I','N'};
+extern unsigned char digit[8]={' ','-',0x80,'1','G','A','I','N'};
 // 8位小数点 1亮  0灭
 // 注：板上数码位小数点从左到右序号排列为4、5、6、7、0、1、2、3
 unsigned char pnt=0x04;
-// 8个LED指示灯状态，每个灯4种颜色状态，0灭，1绿，2红，3橙（红+绿）
-// 注：板上指示灯从左到右序号排列为7、6、5、4、3、2、1、0
-//     对应元件LED8、LED7、LED6、LED5、LED4、LED3、LED2、LED1
-unsigned char led[]={0,0,0,0,0,0,0,0};
+extern unsigned char led[]={0,0,0,0,0,0,0,0};
 // 当前按键值
 extern unsigned char key_code=0;
 bool upgraded=false;
@@ -74,7 +72,6 @@ void Init_Ports(void)
 
 	P2DIR |= BIT7 + BIT6 + BIT5; //P2.5、P2.6、P2.7 设置为输出
 	set_output(P1,0xF);
-	set_output(P2,0x2);
 }
 
 //  定时器TIMER0初始化，循环定时20ms
@@ -138,6 +135,7 @@ __interrupt void Timer0_A0 (void)
 	//
 	update_music();
 	update_remote_inter();
+	update_autoamp_inter();
 }
 
 //////////////////////////////
@@ -172,9 +170,10 @@ void update_level(void){
 int main(void)
 {
 	//unsigned char i=0,temp;
-	Init_Devices();
+   	Init_Devices();
 	init_music();
 	init_remote_control();
+	init_adc();
 	while (clock100ms<3);   // 延时60ms等待TM1638上电完成
 	init_TM1638();	    //初始化TM1638
 
@@ -195,5 +194,6 @@ int main(void)
 
 		update_music_ctrl();
 		update_remote_ctrl();
+		update_autoamp();
 	}
 }

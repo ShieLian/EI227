@@ -1,6 +1,10 @@
 #include <msp430g2553.h>
 #include <controller.h>
 
+typedef short bool;
+#define false 0
+#define true 1
+
 void Init_Ports_music(void)
 {
 	set_output(P2,0x2);   //将P2.1设置为输出
@@ -10,7 +14,7 @@ void Init_Ports_music(void)
 //*********************************增加部分分鸽线*******************************
 //****************************************************************************
 //const unsigned int a = 294;
-enum note{do=262,re=294,mi=330,fa=349,so=392,la=440,ti=494,
+enum note{do_=262,re=294,mi=330,fa=349,so=392,la=440,ti=494,
           $do=523,$re=587,$mi=659,$fa=698,$so=784,$la=880,$ti=988,
           $$do = 1047, $$re = 1174, $$mi = 1318};
 
@@ -18,9 +22,51 @@ const unsigned int music_data2[][2] =   //乐谱
 {
      //{262,400},{294,400},{330,400},{349,400},{0,400},{392,400},{440,400},{494,400},{523,400},{0,0} //这是一个音阶
      //{220,800}, {327,200},{440,100},{392,100},{327,400},{220,400},{262,200},{392,100},{327,100},{294,600},{262,100},{247,100},{294,200},{262,100},{247,100},{220,600},{563,100},{494,100},{440,400},{440,400},{494,800},{0,0}
-    {$mi,00}, {$re,800},{$do,800},{ti,800},{la,800},{so,800},{la,800},{ti,800},{$do,800},{ti,800},{la,800},{so,800},
-{fa,800},{mi,800},{fa,800},{re,800},{$$do,800},{$ti,800},{$la,800},{$so,800},{$fa,800},{$mi,800},{$fa,800},{$re,800},
-{0,0} //卡农
+    {$mi,800},{$re,800},{$do,800},{ti,800},{la,800},{so,800},{la,800},{ti,800},
+    {$do,200},{ti,200},{$do,200},{mi,200},
+    {so,400},{la,200},{ti,200},
+    {$do,200},{ti,200},{$do,200},{mi,200},
+    {$so,200},{$mi,200},{$so,200},{$la,200},
+    {$fa,200},{$mi,200},{$re,200},{$fa,200},
+    {$mi,200},{$re,200},{$do,200},{ti,200},//
+    {la,200},{so,200},{fa,200},{$do,200},
+    {ti,800},//-*
+    {$do,200},{ti,200},{$do,200},{mi,200},
+    {so,400},{la,200},{ti,200},
+    {$do,200},{ti,200},{$do,200},{mi,200},
+    {$so,200},{$mi,200},{$so,200},{$la,200},
+    {$fa,200},{$mi,200},{$re,200},{$fa,200},
+    {$mi,200},{$re,200},{$do,200},{ti,200},//
+    {la,200},{so,200},{fa,200},{$do,200},
+    {ti,200},{so,200},{$do,200},{ti,200},
+    //auto-gen
+    {$so,200},{$mi,100},{$fa,100},{$so,200},{$mi,100},{$fa,100},
+    {$so,100},{so,100},{la,100},{ti,100},{$do,100},{$re,100},{$mi,100},{$fa,100},
+    {$mi,200},{$do,100},{$re,100},{$mi,200},{mi,100},{fa,100},
+    {so,100},{la,100},{so,100},{mi,100},{so,100},{$do,100},{ti,100},{$do,100},
+    {la,200},{$do,100},{ti,100},{la,200},{so,100},{fa,100},
+    {so,100},{fa,100},{mi,100},{fa,100},{so,100},{la,100},{ti,100},{$do,100},
+    {la,200},{$do,100},{ti,100},{$do,200},{ti,100},{la,100},
+    {ti,100},{la,100},{ti,100},{$do,100},{$re,100},{$mi,100},{$fa,100},{$so,100},
+    {$so,200},{$mi,100},{$fa,100},{$so,200},{$mi,100},{$fa,100},
+    {$so,100},{so,100},{la,100},{ti,100},{$do,100},{$re,100},{$mi,100},{$fa,100},
+    {$mi,200},{$do,100},{$re,100},{$mi,200},{mi,100},{fa,100},
+    {so,100},{la,100},{so,100},{mi,100},{so,100},{$do,100},{ti,100},{$do,100},
+    {la,200},{$do,100},{ti,100},{la,200},{so,100},{fa,100},
+    {so,100},{fa,100},{mi,100},{fa,100},{so,100},{la,100},{ti,100},{$do,100},
+    {la,200},{$do,100},{ti,100},{$do,200},{ti,100},{la,100},
+    {ti,100},{la,100},{ti,100},{$do,100},{$re,100},{$mi,100},{$fa,100},{$so,100},
+    {$mi,200},{$do,100},{$re,100},{$mi,200},{$re,100},{$do,100},
+    {$re,100},{ti,100},{$do,100},{$re,100},{$mi,100},{$re,100},{$do,100},{ti,100},
+    {$do,200},{la,100},{ti,100},{$do,200},{mi,100},{fa,100},
+    {so,100},{la,100},{so,100},{fa,100},{so,100},{$do,100},{ti,100},{$do,100},
+    {la,200},{$do,100},{ti,100},{la,200},{so,100},{fa,100},
+    {so,100},{fa,100},{mi,100},{fa,100},{so,100},{la,100},{ti,100},{$do,100},
+    {la,200},{$do,100},{ti,100},{$do,200},{ti,100},{la,100},
+    {ti,100},{$do,100},{$re,100},{$do,100},{ti,100},{$do,100},{la,100},{ti,100},
+    {$do,800},{so,800},{la,800},{mi,800},{fa,800},{$do,800},{la,800},{ti,800},{$do,1600},
+    //
+    {0,0} //卡农
 };
 
 const unsigned int music_data1[][2] =   //乐谱：荷塘月色。
@@ -66,17 +112,21 @@ unsigned int speed = 20;       //变速
 unsigned int mode_flag = 0; //输出方式标志
 unsigned int end_flag = 1;  //模式2-下个音符指针
 //unsigned int changespeed_flag = 0;
-void Init_Timer1(void)   //初始化计数器A1
+void Init_Timer1(int mode)   //初始化计数器A1
 {
-    TA1CTL = TASSEL_2 + MC_1 + TAIE_0;
-    TA1CCTL1 = OUTMOD_7;
-    TA1CCR0 = 1000000/440;  //设定周期，100000为定时器1的时钟频率，440为音频频率
-    TA1CCR1 = TA1CCR0/2;  //设置占空比为50%
+    if(mode == 1){
+        TA1CTL = TASSEL_2 + MC_1;
+        TA1CCTL1 = OUTMOD_7;
+        TA1CCR0 = 1000000/440;  //设定周期，100000为定时器1的时钟频率，440为音频频率
+        TA1CCR1 = TA1CCR0/2;  //设置占空比为50%
+    }else if(mode == 2){
+
+    }
 }
 
 void init_music(void)
 {
-    Init_Timer1();          //调用函数，初始化定时器1
+    Init_Timer1(1);          //调用函数，初始化定时器1
     Init_Ports_music();
 }
 
@@ -96,7 +146,7 @@ void update_music(void)
 	    {
 	        TA1CTL = 0;   //计时器A1停止
 	        audio_frequency = music_data1[audio_ptr][0];  //读取下一个音符的频率和持续时间（下行）
-	        audio_dura = music_data1[audio_ptr][1]/15;  //改变20可以调整节奏快慢
+	        audio_dura = music_data1[audio_ptr][1]/speed;  //改变20可以调整节奏快慢
 	        if(audio_frequency == 0 && audio_dura == 0) {audio_ptr = 0; play_flag = 0;}  //音乐播放结束，指针归0
 	        else
 	        {
@@ -143,25 +193,31 @@ void update_music(void)
 /**
  * 主程序更新控制信号
  */
+bool update_speed=false;
 void update_music_ctrl(void)
 {
+
     if(key_code == 3 && play_flag != 3) {TA1CTL = 0; audio_ptr = 0; play_flag = 3;}  //将3号按钮作为播放音乐1的控制开关
     if(key_code == 4 && play_flag != 4) {TA1CTL = 0; audio_ptr = 0; play_flag = 4;}  //将4号按钮作为播放音乐2的控制开关
-    if(key_code == 7)
+    if(!update_speed & key_code == 7)
     {
         speed = speed - 5;
         if(speed == 0) speed = 5;
+        update_speed=true;
     }
-    if(key_code == 8)
+    if(!update_speed & key_code == 8)
     {
         speed = speed + 5;
         if(speed == 35) speed = 30;
+        update_speed=true;
     }
+    if(update_speed & key_code==0)
+        update_speed=false;
     if(key_code == 12) {TA1CTL = 0; audio_ptr = 0; play_flag = 0;}
 }
 
 ////////////播放方案2///////////////
-
+/**
 void Init_Timer1_2(int f)
 {
 	TA1CTL = TASSEL_2 + MC_1;      // Source: SMCLK=1MHz, UP mode,
@@ -203,3 +259,4 @@ void update_music2(void)
 	   }
 	}
 }
+*/
