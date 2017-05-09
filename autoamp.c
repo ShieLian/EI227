@@ -31,14 +31,14 @@ void update_autoamp_inter(){
         if(level!=1){
             --level;
         }
-        led[6]=(unsigned char)2;
+        led[7]=(unsigned char)2;
     } else if(volt < 0.02) {//100mVp
         if(level!=15){
             ++level;
         }
-        led[6]=(unsigned char)3;
+        led[7]=(unsigned char)3;
     } else {
-        led[6]=(unsigned char)1;
+        led[7]=(unsigned char)1;
     }
     interval=5;
 }
@@ -57,11 +57,13 @@ void update_autoamp(){
     ADC10CTL0 |= ENC + ADC10SC;             // Sampling and conversionstart
     //__bis_SR_register(CPUOFF + GIE);        // LPM0, ADC10_ISR will force exit
     if (ADC10MEM < 0x1FF)
-      P1OUT &= ~BIT6;                       // Clear P1.0 LED off
+        P1OUT &= ~BIT6;                       // Clear P1.0 LED off
     else
-      P1OUT |= BIT6;                        // Set P1.0 LED on
-      volt=((int)ADC10MEM)*3.55/1023;
-    led[7]=(char)enautoamp;
+        P1OUT |= BIT6;                        // Set P1.0 LED on
+        volt=((int)ADC10MEM)*3.55/1023;
+    if(!enautoamp){
+        led[7]=0;
+    }
 }
 
 
