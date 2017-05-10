@@ -143,28 +143,27 @@ __interrupt void Timer0_A0 (void)
 //////////////////////////////
 
 void update_level(void){
-    if(!levelmask){
-        if(!upgraded){
-            if(key_code==1){
-                upgraded=true;
-                --level;
-                if(level==0)
-                    level=15;
-            } else if(key_code==2){
-                upgraded=true;
-                ++level;
-                if(level==16)
-                    level=1;
-            } else{
-                upgraded=false;
-            }
+    if(!upgraded){
+        if(key_code==1){
+            upgraded=true;
+            --level;
+            if(level==0)
+                level=15;
+        } else if(key_code==2){
+            upgraded=true;
+            ++level;
+            if(level==16)
+                level=1;
         } else{
-            if(key_code!=1 && key_code!=2)
-                upgraded=false;
+            upgraded=false;
         }
-        digit[3] = (digit[3]&0x80) + level%10;
-        digit[2] = (digit[2]&0x80) + level/10;
-
+    } else{
+        if(key_code!=1 && key_code!=2)
+            upgraded=false;
+    }
+    digit[3] = (digit[3]&0x80) + level%10;
+    digit[2] = (digit[2]&0x80) + level/10;
+    if(!levelmask){
         P1OUT=(unsigned char)((P1OUT & 0xF0) + (level & 0x0F));
     }
 }
