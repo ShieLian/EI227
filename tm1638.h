@@ -3,19 +3,20 @@
 
 #include  "msp430g2553.h"
 
-#define DIO_L   P2OUT &= ~BIT5
-#define DIO_H   P2OUT |=  BIT5
-#define CLK_L   P2OUT &= ~BIT7
-#define CLK_H   P2OUT |=  BIT7
-#define STB_L   P2OUT &= ~BIT6
-#define STB_H   P2OUT |=  BIT6
-#define DIO_IN  P2DIR &= ~BIT5
-#define DIO_OUT P2DIR |=  BIT5
+//用于连接TM1638的单片机引脚输出操作定义
+#define DIO_L   P2OUT &= ~BIT5     //P2.5=0
+#define DIO_H   P2OUT |=  BIT5     //P2.5=1
+#define CLK_L   P2OUT &= ~BIT7     //P2.7=0
+#define CLK_H   P2OUT |=  BIT7     //P2.7=1
+#define STB_L   P2OUT &= ~BIT6     //P2.6=0
+#define STB_H   P2OUT |=  BIT6     //P2.6=1
+#define DIO_IN  P2DIR &= ~BIT5    //P2.5 设置为输入
+#define DIO_OUT P2DIR |=  BIT5    //P2.5 设置为输出
 #define DIO_DATA_IN    P2IN & BIT5
 typedef short bool;
 #define false 0
 #define true 1
-
+// 将显示数字或符号转换为共阴数码管的笔画值
 unsigned char TM1638_DigiSegment(unsigned char digit)
 {
 	unsigned char segment=0;
@@ -58,11 +59,11 @@ unsigned char TM1638_DigiSegment(unsigned char digit)
 }
 
 
-
+// TM1638串行数据输入
 void TM1638_Serial_Input(unsigned char	DATA)
 {
 	unsigned char i;
-	DIO_OUT;
+	DIO_OUT;  //P2.5 设置为输出
 	for(i=0;i<8;i++)
 	{
 		CLK_L;
@@ -75,12 +76,12 @@ void TM1638_Serial_Input(unsigned char	DATA)
 	}
 }
 
-
+// TM1638串行数据输出
 unsigned char TM1638_Serial_Output(void)
 {
 	unsigned char i;
 	unsigned char temp=0;
-	DIO_IN;
+	DIO_IN;	//P2.5 设置为输入
 	for(i=0;i<8;i++)
 	{
 		temp>>=1;
@@ -88,20 +89,22 @@ unsigned char TM1638_Serial_Output(void)
 		CLK_H;
 		if((DIO_DATA_IN)!=0)
 			temp|=0x80;
+		//CLK_L;
 	}
 	return temp;
 }
 
 
+// 读取键盘当前状态
 unsigned char TM1638_Readkeyboard(void)
 {
 	unsigned char c[4],i,key_code=0;
 	STB_L;
-	TM1638_Serial_Input(0x42);
-	__delay_cycles(10);
-	for(i=0;i<4;i++)
+	TM1638_Serial_Input(0x42);		           //读键扫数据 命令
+	__delay_cycles(10);		// 适当延时约为1us
+	for(i=0;i<4;i++)		
 		c[i]=TM1638_Serial_Output();
-	STB_H;
+	STB_H;					           //4个字节数据合成一个字节
 
 	if(c[0]==0x04) key_code=1;
 	if(c[0]==0x40) key_code=2;
@@ -119,7 +122,7 @@ unsigned char TM1638_Readkeyboard(void)
 	if(c[2]==0x20) key_code=14;
 	if(c[3]==0x02) key_code=15;
 	if(c[3]==0x20) key_code=16;
-	return key_code;
+	return key_code;  //key_code=0代表当前没有键被按下
 }
 
 unsigned short TM1638_Readkeyboard_bit(void)
@@ -127,11 +130,11 @@ unsigned short TM1638_Readkeyboard_bit(void)
     unsigned char c[4],i;
     unsigned short key_code=0;
     STB_L;
-    TM1638_Serial_Input(0x42);
-    __delay_cycles(10);
+    TM1638_Serial_Input(0x42);                 //读键扫数据 命令
+    __delay_cycles(10);     // 适当延时约为1us
     for(i=0;i<4;i++)
         c[i]=TM1638_Serial_Output();
-    STB_H;
+    STB_H;                             //4个字节数据合成一个字节
 
     if(c[0]==0x04) key_code|=1;
     if(c[0]==0x40) key_code|=2;
@@ -149,10 +152,10 @@ unsigned short TM1638_Readkeyboard_bit(void)
     if(c[2]==0x20) key_code|=0x2000;
     if(c[3]==0x02) key_code|=0x4000;
     if(c[3]==0x20) key_code|=0x8000;
-    return key_code;
+    return key_code;  //key_code=0代表当前没有键被按下
 }
 
-
+// 刷新8位数码管（含小数点）和8组指示灯（每组2只，有4种亮灯模式）
 void TM1638_RefreshDIGIandLED(unsigned char digit_buf[8],unsigned char pnt_buf,unsigned char led_buf[8])
 {
 	unsigned char i,mask,buf[16];
@@ -160,15 +163,17 @@ void TM1638_RefreshDIGIandLED(unsigned char digit_buf[8],unsigned char pnt_buf,u
 	mask=0x01;
 	for(i=0;i<8;i++)
 	{
+		//数码管
 		buf[i*2]=TM1638_DigiSegment(digit_buf[i]);
 		if ((pnt_buf&mask)!=0) buf[i*2]|=0x80;
 		mask=mask*2;
 
+		//指示灯
 		buf[i*2+1]=led_buf[i];
 	}
 
-	STB_L;TM1638_Serial_Input(0x40);STB_H;
-	STB_L;TM1638_Serial_Input(0xC0);
+	STB_L;TM1638_Serial_Input(0x40);STB_H;       //设置地址模式为自动加一
+	STB_L;TM1638_Serial_Input(0xC0);             //设置起始地址
 	for (i=0;i<16;i++)
 	{
 		TM1638_Serial_Input(buf[i]);
@@ -183,15 +188,17 @@ void TM1638_RefreshDIGIandLED_raw(unsigned char value[8],unsigned char pnt_buf,u
     mask=0x01;
     for(i=0;i<8;i++)
     {
-        buf[i*2]=value[i];
+        //数码管
+        buf[i*2]=value[i];//TM1638_DigiSegment(value[i]);
         if ((pnt_buf&mask)!=0) buf[i*2]|=0x80;
         mask=mask*2;
 
+        //指示灯
         buf[i*2+1]=led_buf[i];
     }
 
-    STB_L;TM1638_Serial_Input(0x40);STB_H;
-    STB_L;TM1638_Serial_Input(0xC0);
+    STB_L;TM1638_Serial_Input(0x40);STB_H;       //设置地址模式为自动加一
+    STB_L;TM1638_Serial_Input(0xC0);             //设置起始地址
     for (i=0;i<16;i++)
     {
         TM1638_Serial_Input(buf[i]);
@@ -199,8 +206,9 @@ void TM1638_RefreshDIGIandLED_raw(unsigned char value[8],unsigned char pnt_buf,u
     STB_H;
 }
 
+//TM1638初始化函数
 void init_TM1638(void)
 {
-	STB_L;TM1638_Serial_Input(0x8A);STB_H;
+	STB_L;TM1638_Serial_Input(0x8A);STB_H;       //设置亮度 (0x88-0x8f)8级亮度可调
 }
 #endif
