@@ -7,12 +7,17 @@ typedef short bool;
 
 int pulse_counter=0;
 bool pulse_done=false;
-const int threshold=10;
+const int threshold=10;//!
+/**
+ * 初始化
+ */
 
 void init_remote_control(){
     set_input(P1,BIT7);
 }
-
+/**
+ * 20ms中断更新程序
+ */
 void update_remote_inter(){
     if(P1IN & BIT7){
         ++pulse_counter;
@@ -20,7 +25,9 @@ void update_remote_inter(){
         pulse_done=true;
     }
 }
-
+/**
+ * 控制字更新程序
+ */
 void update_remote_ctrl(){
     if(pulse_done){
         if(pulse_counter<threshold){
