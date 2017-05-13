@@ -1,13 +1,9 @@
-<<<<<<< HEAD
 ﻿//本程序时钟采用内部RC振荡器。     DCO：8MHz,供CPU时钟;  SMCLK：1MHz,供定时器时钟
-=======
->>>>>>> parent of 9d72fb8... Revert "controller.c"
 #include <msp430g2553.h>
 #include <tm1638.h>
 #include <music.h>
 #include <remote_control.h>
 #include <autoamp.h>
-<<<<<<< HEAD
 //////////////////////////////
 //         常量定义         //
 //////////////////////////////
@@ -37,36 +33,14 @@ extern unsigned char digit[8]={' ','-',0x80,'1','G','A','I','N'};
 unsigned char pnt=0x04;
 extern unsigned char led[]={0,0,0,0,0,0,0,0};
 // 当前按键值
-=======
-
-#define V_T100ms	5
-
-#define V_T500ms	25
-
-unsigned char clock100ms=0;
-unsigned char clock500ms=0;
-
-unsigned char clock100ms_flag=0;
-unsigned char clock500ms_flag=0;
-
-unsigned int test_counter=0;
-
-extern unsigned char digit[8]={' ','-',0x80,'1','G','A','I','N'};
-unsigned char pnt=0x04;
-extern unsigned char led[]={0,0,0,0,0,0,0,0};
->>>>>>> parent of 9d72fb8... Revert "controller.c"
 extern unsigned char key_code=0;
 bool upgraded=false;
 unsigned short level=1;
 
 enum PIN {P1,P2};
-<<<<<<< HEAD
 //////////////////////////////
 //       系统初始化         //
 //////////////////////////////
-=======
-
->>>>>>> parent of 9d72fb8... Revert "controller.c"
 void set_input(enum PIN pin,unsigned char port){
     unsigned char pinOUT,pinDIR,pinREN;
     if(pin==P1){
@@ -90,7 +64,6 @@ void set_output(enum PIN pin,unsigned char port){
         P2DIR |= port;
     }
 }
-<<<<<<< HEAD
 //  I/O端口和引脚初始化
 void Init_Ports(void)
 {
@@ -160,72 +133,14 @@ __interrupt void Timer0_A0 (void)
 	key_code=TM1638_Readkeyboard();
 
 	//
-=======
-
-void Init_Ports(void)
-{
-	P2SEL &= ~(BIT7+BIT6);
-
-	P2DIR |= BIT7 + BIT6 + BIT5;
-	set_output(P1,0xF);
-}
-
-void Init_Timer0(void)
-{
-	TA0CTL = TASSEL_2 + MC_1 ;
-	TA0CCR0 = 20000;
-	TA0CCTL0 = CCIE;
-}
-
-void Init_Devices(void)
-{
-	WDTCTL = WDTPW + WDTHOLD;
-	if (CALBC1_8MHZ ==0xFF || CALDCO_8MHZ == 0xFF)
-	{
-		while(1);
-	}
-
-	BCSCTL1 = CALBC1_8MHZ;
-	DCOCTL = CALDCO_8MHZ;
-	BCSCTL3 |= LFXT1S_2;
-	IFG1 &= ~OFIFG;
-	BCSCTL2 |= DIVS_3;
-
-    Init_Ports();
-    Init_Timer0();
-    _BIS_SR(GIE);
-}
-
-
-#pragma vector=TIMER0_A0_VECTOR
-__interrupt void Timer0_A0 (void)
-{
-	if (++clock100ms>=V_T100ms)
-	{
-		clock100ms_flag = 1;
-		clock100ms = 0;
-	}
-	if (++clock500ms>=V_T500ms)
-	{
-		clock500ms_flag = 1;
-		clock500ms = 0;
-	}
-	TM1638_RefreshDIGIandLED(digit,pnt,led);
-
-	key_code=TM1638_Readkeyboard();
-
->>>>>>> parent of 9d72fb8... Revert "controller.c"
 	update_music();
 	update_remote_inter();
 	update_autoamp_inter();
 }
 
-<<<<<<< HEAD
 //////////////////////////////
 //         主程序           //
 //////////////////////////////
-=======
->>>>>>> parent of 9d72fb8... Revert "controller.c"
 
 void update_level(void){
     if(!upgraded){
@@ -255,15 +170,11 @@ void update_level(void){
 
 int main(void)
 {
-<<<<<<< HEAD
 	//unsigned char i=0,temp;
-=======
->>>>>>> parent of 9d72fb8... Revert "controller.c"
    	Init_Devices();
 	init_music();
 	init_remote_control();
 	init_adc();
-<<<<<<< HEAD
 	while (clock100ms<3);   // 延时60ms等待TM1638上电完成
 	init_TM1638();	    //初始化TM1638
 
@@ -278,20 +189,6 @@ int main(void)
 		}
 
 		if (clock500ms_flag==1)   // 检查0.5秒定时是否到
-=======
-	while (clock100ms<3);
-	init_TM1638();
-
-	while(1)
-	{
-		if (clock100ms_flag==1)
-		{
-			clock100ms_flag=0;
-            update_level();
-		}
-
-		if (clock500ms_flag==1)
->>>>>>> parent of 9d72fb8... Revert "controller.c"
 		{
 			clock500ms_flag=0;
 		}
