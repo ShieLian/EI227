@@ -1,7 +1,7 @@
-/*
+ï»¿/*
  * music.h
  *
- *  Created on: 2017Äê3ÔÂ26ÈÕ
+ *  Created on: 2017å¹´3æœˆ26æ—¥
  *      Author: ShieLian
  */
 

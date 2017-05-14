@@ -1,7 +1,7 @@
-/*
+ï»¿/*
  * controller.h
  *
- *  Created on: 2017Äê3ÔÂ29ÈÕ
+ *  Created on: 2017å¹´3æœˆ29æ—¥
  *      Author: ShieLian
  */
 
@@ -19,9 +19,9 @@ extern unsigned char digit[8];
 extern unsigned char key_code;
 extern unsigned short level;
 enum PIN {P1,P2};
-// 8¸öLEDÖ¸Ê¾µÆ×´Ì¬£¬Ã¿¸öµÆ4ÖÖÑÕÉ«×´Ì¬£¬0Ãğ£¬1ÂÌ£¬2ºì£¬3³È£¨ºì+ÂÌ£©
-// ×¢£º°åÉÏÖ¸Ê¾µÆ´Ó×óµ½ÓÒĞòºÅÅÅÁĞÎª7¡¢6¡¢5¡¢4¡¢3¡¢2¡¢1¡¢0
-//     ¶ÔÓ¦Ôª¼şLED8¡¢LED7¡¢LED6¡¢LED5¡¢LED4¡¢LED3¡¢LED2¡¢LED1
+// 8ä¸ªLEDæŒ‡ç¤ºç¯çŠ¶æ€ï¼Œæ¯ä¸ªç¯4ç§é¢œè‰²çŠ¶æ€ï¼Œ0ç­ï¼Œ1ç»¿ï¼Œ2çº¢ï¼Œ3æ©™ï¼ˆçº¢+ç»¿ï¼‰
+// æ³¨ï¼šæ¿ä¸ŠæŒ‡ç¤ºç¯ä»å·¦åˆ°å³åºå·æ’åˆ—ä¸º7ã€6ã€5ã€4ã€3ã€2ã€1ã€0
+//     å¯¹åº”å…ƒä»¶LED8ã€LED7ã€LED6ã€LED5ã€LED4ã€LED3ã€LED2ã€LED1
 extern unsigned char led[];
 
 #endif /* CONTROLLER_H_ */

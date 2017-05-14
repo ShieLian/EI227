@@ -1,4 +1,4 @@
-#include <msp430g2553.h>
+ï»¿#include <msp430g2553.h>
 #include <controller.h>
 
 typedef short bool;
@@ -7,17 +7,17 @@ typedef short bool;
 
 void Init_Ports_music(void)
 {
-	set_output(P2,0x2);   //½«P2.1ÉèÖÃÎªÊä³ö
+	set_output(P2,0x2);   //å°†P2.1è®¾ç½®ä¸ºè¾“å‡º
 }
 
 //****************************************************************************
-//*********************************Ôö¼Ó²¿·Ö·Ö¸ëÏß*******************************
+//*********************************å¢åŠ éƒ¨åˆ†åˆ†é¸½çº¿*******************************
 //****************************************************************************
 enum note{do_=262,re=294,mi=330,fa=349,so=392,la=440,ti=494,
           $do=523,$re=587,$mi=659,$fa=698,$so=784,$la=880,$ti=988,
           $$do = 1047, $$re = 1174, $$mi = 1318};
 
-const unsigned int music_data2[][2] =   //ÀÖÆ×
+const unsigned int music_data2[][2] =   //ä¹è°±
 {
     {$mi,800},{$re,800},{$do,800},{ti,800},{la,800},{so,800},{la,800},{ti,800},
     {$do,200},{ti,200},{$do,200},{mi,200},
@@ -63,10 +63,10 @@ const unsigned int music_data2[][2] =   //ÀÖÆ×
     {ti,100},{$do,100},{$re,100},{$do,100},{ti,100},{$do,100},{la,100},{ti,100},
     {$do,800},{so,800},{la,800},{mi,800},{fa,800},{$do,800},{la,800},{ti,800},{$do,1600},
     //
-    {0,0} //¿¨Å©
+    {0,0} //å¡å†œ
 };
 
-const unsigned int music_data1[][2] =   //ÀÖÆ×£ººÉÌÁÔÂÉ«¡£
+const unsigned int music_data1[][2] =   //ä¹è°±ï¼šè·å¡˜æœˆè‰²ã€‚
 {
      {523,600},{784,200},{523,200},{784,200},{523,200},{587,200},{659,1600},
      {523,600},{784,200},{523,200},{784,200},{523,200},{587,200},{587,1600},
@@ -101,23 +101,23 @@ const unsigned int music_data1[][2] =   //ÀÖÆ×£ººÉÌÁÔÂÉ«¡£
 
 
 };
-unsigned int audio_frequency = 0;  //µ±Ç°ÒôÆµÆµÂÊ
-unsigned int audio_dura = 0;  //µ±Ç°ÒôÆµ³ÖĞøÊ±¼ä
-unsigned int audio_ptr = 0;  //¸¨Öú¶ÁÆ×Ö¸Õë
-unsigned int play_flag = 0;  //ÒôÀÖ²¥·Å±êÖ¾¡£0Ê±²»²¥·Å£¬1Ê±¿ªÊ¼²¥·Å
-unsigned int speed = 20;       //±äËÙ
-unsigned int mode = 1; //Êä³ö·½Ê½±êÖ¾
-unsigned int end_flag = 1;  //Ä£Ê½2-ÏÂ¸öÒô·ûÖ¸Õë
+unsigned int audio_frequency = 0;  //å½“å‰éŸ³é¢‘é¢‘ç‡
+unsigned int audio_dura = 0;  //å½“å‰éŸ³é¢‘æŒç»­æ—¶é—´
+unsigned int audio_ptr = 0;  //è¾…åŠ©è¯»è°±æŒ‡é’ˆ
+unsigned int play_flag = 0;  //éŸ³ä¹æ’­æ”¾æ ‡å¿—ã€‚0æ—¶ä¸æ’­æ”¾ï¼Œ1æ—¶å¼€å§‹æ’­æ”¾
+unsigned int speed = 20;       //å˜é€Ÿ
+unsigned int mode = 1; //è¾“å‡ºæ–¹å¼æ ‡å¿—
+unsigned int end_flag = 1;  //æ¨¡å¼2-ä¸‹ä¸ªéŸ³ç¬¦æŒ‡é’ˆ
 extern int levelmask=0;
 double freq_multi=1.0;
 //unsigned int changespeed_flag = 0;
-void Init_Timer1(void)   //³õÊ¼»¯¼ÆÊıÆ÷A1
+void Init_Timer1(void)   //åˆå§‹åŒ–è®¡æ•°å™¨A1
 {
     if(mode == 1){
         //TA1CTL = TASSEL_2 + MC_1;
         TA1CCTL1 = OUTMOD_7;
-        TA1CCR0 = 1000000/440;  //Éè¶¨ÖÜÆÚ£¬100000Îª¶¨Ê±Æ÷1µÄÊ±ÖÓÆµÂÊ£¬440ÎªÒôÆµÆµÂÊ
-        TA1CCR1 = TA1CCR0/2;  //ÉèÖÃÕ¼¿Õ±ÈÎª50%
+        TA1CCR0 = 1000000/440;  //è®¾å®šå‘¨æœŸï¼Œ100000ä¸ºå®šæ—¶å™¨1çš„æ—¶é’Ÿé¢‘ç‡ï¼Œ440ä¸ºéŸ³é¢‘é¢‘ç‡
+        TA1CCR1 = TA1CCR0/2;  //è®¾ç½®å ç©ºæ¯”ä¸º50%
     }else if(mode == 2){
         if(audio_frequency==0)
             TA1CTL=0;
@@ -131,20 +131,20 @@ void Init_Timer1(void)   //³õÊ¼»¯¼ÆÊıÆ÷A1
 
 void init_music(void)
 {
-    Init_Timer1();          //µ÷ÓÃº¯Êı£¬³õÊ¼»¯¶¨Ê±Æ÷1
+    Init_Timer1();          //è°ƒç”¨å‡½æ•°ï¼Œåˆå§‹åŒ–å®šæ—¶å™¨1
     Init_Ports_music();
 }
 
 //////////////////////////////
-//      ÖĞ¶Ï·şÎñ³ÌĞò                   //
+//      ä¸­æ–­æœåŠ¡ç¨‹åº                   //
 //////////////////////////////
 /**
- *¼ÆÊ±Æ÷A0´¥·¢ÖĞ¶Ï,20ms
+ *è®¡æ—¶å™¨A0è§¦å‘ä¸­æ–­,20ms
  */
-int divcounter=0;//·ÖÆµ¼ÆÊıÆ÷
+int divcounter=0;//åˆ†é¢‘è®¡æ•°å™¨
 void update_music(void)
 {
-	//ÒôÀÖ²¥·Å´úÂë¶Î,·½Ê½1
+	//éŸ³ä¹æ’­æ”¾ä»£ç æ®µ,æ–¹å¼1
     const unsigned int (*musicptr)[2];
     if(play_flag==3)
         musicptr=music_data1;
@@ -154,17 +154,17 @@ void update_music(void)
         if(audio_dura != 0) audio_dura --;
         else{
             if(mode==1){
-                TA1CTL = 0;   //¼ÆÊ±Æ÷A1Í£Ö¹
-                audio_frequency = musicptr[audio_ptr][0]*freq_multi;  //¶ÁÈ¡ÏÂÒ»¸öÒô·ûµÄÆµÂÊºÍ³ÖĞøÊ±¼ä£¨ÏÂĞĞ£©
-                audio_dura = musicptr[audio_ptr][1]/speed;  //¸Ä±ä20¿ÉÒÔµ÷Õû½Ú×à¿ìÂı
-                if(audio_frequency == 0 && audio_dura == 0) {audio_ptr = 0; play_flag = 0;}  //ÒôÀÖ²¥·Å½áÊø£¬Ö¸Õë¹é0
+                TA1CTL = 0;   //è®¡æ—¶å™¨A1åœæ­¢
+                audio_frequency = musicptr[audio_ptr][0]*freq_multi;  //è¯»å–ä¸‹ä¸€ä¸ªéŸ³ç¬¦çš„é¢‘ç‡å’ŒæŒç»­æ—¶é—´ï¼ˆä¸‹è¡Œï¼‰
+                audio_dura = musicptr[audio_ptr][1]/speed;  //æ”¹å˜20å¯ä»¥è°ƒæ•´èŠ‚å¥å¿«æ…¢
+                if(audio_frequency == 0 && audio_dura == 0) {audio_ptr = 0; play_flag = 0;}  //éŸ³ä¹æ’­æ”¾ç»“æŸï¼ŒæŒ‡é’ˆå½’0
                 else
                 {
-                    audio_ptr++;  //Ö¸ÕëºóÒÆÒ»Î»
+                    audio_ptr++;  //æŒ‡é’ˆåç§»ä¸€ä½
                     if(audio_frequency == 0) TA1CTL = 0;
                     else{
-                    //Æô¶¯¼ÆÊ±Æ÷A1
-                    P2SEL |= BIT1;  //½«P2.1×÷Îª·½²¨Êä³ö
+                    //å¯åŠ¨è®¡æ—¶å™¨A1
+                    P2SEL |= BIT1;  //å°†P2.1ä½œä¸ºæ–¹æ³¢è¾“å‡º
                     TA1CCR0 = 1000000/audio_frequency;
                     TA1CCR1 = TA1CCR0/2;
                     TA1CCTL0=0;
@@ -173,15 +173,15 @@ void update_music(void)
                 }
             }
             else {
-                //TA1CTL = 0;   //¼ÆÊ±Æ÷A1Í£Ö¹
-                audio_frequency = musicptr[audio_ptr][0]*freq_multi;  //¶ÁÈ¡ÏÂÒ»¸öÒô·ûµÄÆµÂÊºÍ³ÖĞøÊ±¼ä£¨ÏÂĞĞ£©
-                audio_dura = musicptr[audio_ptr][1]/speed;  //¸Ä±ä20¿ÉÒÔµ÷Õû½Ú×à¿ìÂı
-                if(audio_frequency == 0 && audio_dura == 0) {audio_ptr = 0; play_flag = 0;}  //ÒôÀÖ²¥·Å½áÊø£¬Ö¸Õë¹é0
+                //TA1CTL = 0;   //è®¡æ—¶å™¨A1åœæ­¢
+                audio_frequency = musicptr[audio_ptr][0]*freq_multi;  //è¯»å–ä¸‹ä¸€ä¸ªéŸ³ç¬¦çš„é¢‘ç‡å’ŒæŒç»­æ—¶é—´ï¼ˆä¸‹è¡Œï¼‰
+                audio_dura = musicptr[audio_ptr][1]/speed;  //æ”¹å˜20å¯ä»¥è°ƒæ•´èŠ‚å¥å¿«æ…¢
+                if(audio_frequency == 0 && audio_dura == 0) {audio_ptr = 0; play_flag = 0;}  //éŸ³ä¹æ’­æ”¾ç»“æŸï¼ŒæŒ‡é’ˆå½’0
                 else{
-                    audio_ptr++;  //Ö¸ÕëºóÒÆÒ»Î»
+                    audio_ptr++;  //æŒ‡é’ˆåç§»ä¸€ä½
                     if(audio_frequency == 0) TA1CTL = 0;
                     else{
-                        //Æô¶¯¼ÆÊ±Æ÷A1,¿ªÖĞ¶Ï
+                        //å¯åŠ¨è®¡æ—¶å™¨A1,å¼€ä¸­æ–­
                         //P2OUT|=BIT2;
                         TA1CTL = TASSEL_2 + MC_1;
                         TA1CCR0=500000/audio_frequency;
@@ -197,11 +197,11 @@ void update_music(void)
 }
 
 /**
- * Ö÷³ÌĞò¸üĞÂ¿ØÖÆĞÅºÅ
+ * ä¸»ç¨‹åºæ›´æ–°æ§åˆ¶ä¿¡å·
  */
 void update_play_flag(){
-    if(key_code == 3 && play_flag != 3) {TA1CTL = 0; audio_ptr = 0; play_flag = 3;}  //½«3ºÅ°´Å¥×÷Îª²¥·ÅÒôÀÖ1µÄ¿ØÖÆ¿ª¹Ø
-    if(key_code == 4 && play_flag != 4) {TA1CTL = 0; audio_ptr = 0; play_flag = 4;}  //½«4ºÅ°´Å¥×÷Îª²¥·ÅÒôÀÖ2µÄ¿ØÖÆ¿ª¹Ø
+    if(key_code == 3 && play_flag != 3) {TA1CTL = 0; audio_ptr = 0; play_flag = 3;}  //å°†3å·æŒ‰é’®ä½œä¸ºæ’­æ”¾éŸ³ä¹1çš„æ§åˆ¶å¼€å…³
+    if(key_code == 4 && play_flag != 4) {TA1CTL = 0; audio_ptr = 0; play_flag = 4;}  //å°†4å·æŒ‰é’®ä½œä¸ºæ’­æ”¾éŸ³ä¹2çš„æ§åˆ¶å¼€å…³
     if(key_code == 16) {TA1CTL = 0; audio_ptr = 0; play_flag = 0;}
 }
 bool update_speed=false;
@@ -286,9 +286,9 @@ void update_music_ctrl(void)
     update_requency();
 }
 
-////////////²¥·Å·½°¸2///////////////
+////////////æ’­æ”¾æ–¹æ¡ˆ2///////////////
 /**
- * ±äÊ±³¤ÖĞ¶Ï£¬ÓÃÓÚ²úÉú4Â··½²¨
+ * å˜æ—¶é•¿ä¸­æ–­ï¼Œç”¨äºäº§ç”Ÿ4è·¯æ–¹æ³¢
  */
 int togglestate=0;
 #pragma vector=TIMER1_A0_VECTOR

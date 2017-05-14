@@ -1,22 +1,22 @@
-#ifndef	_TM1638_H
+ï»¿#ifndef	_TM1638_H
 #define	_TM1638_H
 
 #include  "msp430g2553.h"
 
-//ÓÃÓÚÁ¬½ÓTM1638µÄµ¥Æ¬»úÒı½ÅÊä³ö²Ù×÷¶¨Òå
+//ç”¨äºè¿æ¥TM1638çš„å•ç‰‡æœºå¼•è„šè¾“å‡ºæ“ä½œå®šä¹‰
 #define DIO_L   P2OUT &= ~BIT5     //P2.5=0
 #define DIO_H   P2OUT |=  BIT5     //P2.5=1
 #define CLK_L   P2OUT &= ~BIT7     //P2.7=0
 #define CLK_H   P2OUT |=  BIT7     //P2.7=1
 #define STB_L   P2OUT &= ~BIT6     //P2.6=0
 #define STB_H   P2OUT |=  BIT6     //P2.6=1
-#define DIO_IN  P2DIR &= ~BIT5    //P2.5 ÉèÖÃÎªÊäÈë
-#define DIO_OUT P2DIR |=  BIT5    //P2.5 ÉèÖÃÎªÊä³ö
+#define DIO_IN  P2DIR &= ~BIT5    //P2.5 è®¾ç½®ä¸ºè¾“å…¥
+#define DIO_OUT P2DIR |=  BIT5    //P2.5 è®¾ç½®ä¸ºè¾“å‡º
 #define DIO_DATA_IN    P2IN & BIT5
 typedef short bool;
 #define false 0
 #define true 1
-// ½«ÏÔÊ¾Êı×Ö»ò·ûºÅ×ª»»Îª¹²ÒõÊıÂë¹ÜµÄ±Ê»­Öµ
+// å°†æ˜¾ç¤ºæ•°å­—æˆ–ç¬¦å·è½¬æ¢ä¸ºå…±é˜´æ•°ç ç®¡çš„ç¬”ç”»å€¼
 unsigned char TM1638_DigiSegment(unsigned char digit)
 {
 	unsigned char segment=0;
@@ -59,11 +59,11 @@ unsigned char TM1638_DigiSegment(unsigned char digit)
 }
 
 
-// TM1638´®ĞĞÊı¾İÊäÈë
+// TM1638ä¸²è¡Œæ•°æ®è¾“å…¥
 void TM1638_Serial_Input(unsigned char	DATA)
 {
 	unsigned char i;
-	DIO_OUT;  //P2.5 ÉèÖÃÎªÊä³ö
+	DIO_OUT;  //P2.5 è®¾ç½®ä¸ºè¾“å‡º
 	for(i=0;i<8;i++)
 	{
 		CLK_L;
@@ -76,12 +76,12 @@ void TM1638_Serial_Input(unsigned char	DATA)
 	}
 }
 
-// TM1638´®ĞĞÊı¾İÊä³ö
+// TM1638ä¸²è¡Œæ•°æ®è¾“å‡º
 unsigned char TM1638_Serial_Output(void)
 {
 	unsigned char i;
 	unsigned char temp=0;
-	DIO_IN;	//P2.5 ÉèÖÃÎªÊäÈë
+	DIO_IN;	//P2.5 è®¾ç½®ä¸ºè¾“å…¥
 	for(i=0;i<8;i++)
 	{
 		temp>>=1;
@@ -95,16 +95,16 @@ unsigned char TM1638_Serial_Output(void)
 }
 
 
-// ¶ÁÈ¡¼üÅÌµ±Ç°×´Ì¬
+// è¯»å–é”®ç›˜å½“å‰çŠ¶æ€
 unsigned char TM1638_Readkeyboard(void)
 {
 	unsigned char c[4],i,key_code=0;
 	STB_L;
-	TM1638_Serial_Input(0x42);		           //¶Á¼üÉ¨Êı¾İ ÃüÁî
-	__delay_cycles(10);		// ÊÊµ±ÑÓÊ±Ô¼Îª1us
+	TM1638_Serial_Input(0x42);		           //è¯»é”®æ‰«æ•°æ® å‘½ä»¤
+	__delay_cycles(10);		// é€‚å½“å»¶æ—¶çº¦ä¸º1us
 	for(i=0;i<4;i++)		
 		c[i]=TM1638_Serial_Output();
-	STB_H;					           //4¸ö×Ö½ÚÊı¾İºÏ³ÉÒ»¸ö×Ö½Ú
+	STB_H;					           //4ä¸ªå­—èŠ‚æ•°æ®åˆæˆä¸€ä¸ªå­—èŠ‚
 
 	if(c[0]==0x04) key_code=1;
 	if(c[0]==0x40) key_code=2;
@@ -122,7 +122,7 @@ unsigned char TM1638_Readkeyboard(void)
 	if(c[2]==0x20) key_code=14;
 	if(c[3]==0x02) key_code=15;
 	if(c[3]==0x20) key_code=16;
-	return key_code;  //key_code=0´ú±íµ±Ç°Ã»ÓĞ¼ü±»°´ÏÂ
+	return key_code;  //key_code=0ä»£è¡¨å½“å‰æ²¡æœ‰é”®è¢«æŒ‰ä¸‹
 }
 
 unsigned short TM1638_Readkeyboard_bit(void)
@@ -130,11 +130,11 @@ unsigned short TM1638_Readkeyboard_bit(void)
     unsigned char c[4],i;
     unsigned short key_code=0;
     STB_L;
-    TM1638_Serial_Input(0x42);                 //¶Á¼üÉ¨Êı¾İ ÃüÁî
-    __delay_cycles(10);     // ÊÊµ±ÑÓÊ±Ô¼Îª1us
+    TM1638_Serial_Input(0x42);                 //è¯»é”®æ‰«æ•°æ® å‘½ä»¤
+    __delay_cycles(10);     // é€‚å½“å»¶æ—¶çº¦ä¸º1us
     for(i=0;i<4;i++)
         c[i]=TM1638_Serial_Output();
-    STB_H;                             //4¸ö×Ö½ÚÊı¾İºÏ³ÉÒ»¸ö×Ö½Ú
+    STB_H;                             //4ä¸ªå­—èŠ‚æ•°æ®åˆæˆä¸€ä¸ªå­—èŠ‚
 
     if(c[0]==0x04) key_code|=1;
     if(c[0]==0x40) key_code|=2;
@@ -152,10 +152,10 @@ unsigned short TM1638_Readkeyboard_bit(void)
     if(c[2]==0x20) key_code|=0x2000;
     if(c[3]==0x02) key_code|=0x4000;
     if(c[3]==0x20) key_code|=0x8000;
-    return key_code;  //key_code=0´ú±íµ±Ç°Ã»ÓĞ¼ü±»°´ÏÂ
+    return key_code;  //key_code=0ä»£è¡¨å½“å‰æ²¡æœ‰é”®è¢«æŒ‰ä¸‹
 }
 
-// Ë¢ĞÂ8Î»ÊıÂë¹Ü£¨º¬Ğ¡Êıµã£©ºÍ8×éÖ¸Ê¾µÆ£¨Ã¿×é2Ö»£¬ÓĞ4ÖÖÁÁµÆÄ£Ê½£©
+// åˆ·æ–°8ä½æ•°ç ç®¡ï¼ˆå«å°æ•°ç‚¹ï¼‰å’Œ8ç»„æŒ‡ç¤ºç¯ï¼ˆæ¯ç»„2åªï¼Œæœ‰4ç§äº®ç¯æ¨¡å¼ï¼‰
 void TM1638_RefreshDIGIandLED(unsigned char digit_buf[8],unsigned char pnt_buf,unsigned char led_buf[8])
 {
 	unsigned char i,mask,buf[16];
@@ -163,17 +163,17 @@ void TM1638_RefreshDIGIandLED(unsigned char digit_buf[8],unsigned char pnt_buf,u
 	mask=0x01;
 	for(i=0;i<8;i++)
 	{
-		//ÊıÂë¹Ü
+		//æ•°ç ç®¡
 		buf[i*2]=TM1638_DigiSegment(digit_buf[i]);
 		if ((pnt_buf&mask)!=0) buf[i*2]|=0x80;
 		mask=mask*2;
 
-		//Ö¸Ê¾µÆ
+		//æŒ‡ç¤ºç¯
 		buf[i*2+1]=led_buf[i];
 	}
 
-	STB_L;TM1638_Serial_Input(0x40);STB_H;       //ÉèÖÃµØÖ·Ä£Ê½Îª×Ô¶¯¼ÓÒ»
-	STB_L;TM1638_Serial_Input(0xC0);             //ÉèÖÃÆğÊ¼µØÖ·
+	STB_L;TM1638_Serial_Input(0x40);STB_H;       //è®¾ç½®åœ°å€æ¨¡å¼ä¸ºè‡ªåŠ¨åŠ ä¸€
+	STB_L;TM1638_Serial_Input(0xC0);             //è®¾ç½®èµ·å§‹åœ°å€
 	for (i=0;i<16;i++)
 	{
 		TM1638_Serial_Input(buf[i]);
@@ -188,17 +188,17 @@ void TM1638_RefreshDIGIandLED_raw(unsigned char value[8],unsigned char pnt_buf,u
     mask=0x01;
     for(i=0;i<8;i++)
     {
-        //ÊıÂë¹Ü
+        //æ•°ç ç®¡
         buf[i*2]=value[i];//TM1638_DigiSegment(value[i]);
         if ((pnt_buf&mask)!=0) buf[i*2]|=0x80;
         mask=mask*2;
 
-        //Ö¸Ê¾µÆ
+        //æŒ‡ç¤ºç¯
         buf[i*2+1]=led_buf[i];
     }
 
-    STB_L;TM1638_Serial_Input(0x40);STB_H;       //ÉèÖÃµØÖ·Ä£Ê½Îª×Ô¶¯¼ÓÒ»
-    STB_L;TM1638_Serial_Input(0xC0);             //ÉèÖÃÆğÊ¼µØÖ·
+    STB_L;TM1638_Serial_Input(0x40);STB_H;       //è®¾ç½®åœ°å€æ¨¡å¼ä¸ºè‡ªåŠ¨åŠ ä¸€
+    STB_L;TM1638_Serial_Input(0xC0);             //è®¾ç½®èµ·å§‹åœ°å€
     for (i=0;i<16;i++)
     {
         TM1638_Serial_Input(buf[i]);
@@ -206,9 +206,9 @@ void TM1638_RefreshDIGIandLED_raw(unsigned char value[8],unsigned char pnt_buf,u
     STB_H;
 }
 
-//TM1638³õÊ¼»¯º¯Êı
+//TM1638åˆå§‹åŒ–å‡½æ•°
 void init_TM1638(void)
 {
-	STB_L;TM1638_Serial_Input(0x8A);STB_H;       //ÉèÖÃÁÁ¶È (0x88-0x8f)8¼¶ÁÁ¶È¿Éµ÷
+	STB_L;TM1638_Serial_Input(0x8A);STB_H;       //è®¾ç½®äº®åº¦ (0x88-0x8f)8çº§äº®åº¦å¯è°ƒ
 }
 #endif

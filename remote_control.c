@@ -1,4 +1,4 @@
-#include <msp430g2553.h>
+ï»¿#include <msp430g2553.h>
 #include <controller.h>
 
 typedef short bool;
@@ -9,14 +9,14 @@ int pulse_counter=0;
 bool pulse_done=false;
 const int threshold=10;//!
 /**
- * ³õÊ¼»¯
+ * åˆå§‹åŒ–
  */
 
 void init_remote_control(){
     set_input(P1,BIT7);
 }
 /**
- * 20msÖĞ¶Ï¸üĞÂ³ÌĞò
+ * 20msä¸­æ–­æ›´æ–°ç¨‹åº
  */
 void update_remote_inter(){
     if(P1IN & BIT7){
@@ -26,7 +26,7 @@ void update_remote_inter(){
     }
 }
 /**
- * ¿ØÖÆ×Ö¸üĞÂ³ÌĞò
+ * æ§åˆ¶å­—æ›´æ–°ç¨‹åº
  */
 void update_remote_ctrl(){
     if(pulse_done){
