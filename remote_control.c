@@ -7,7 +7,7 @@ typedef short bool;
 
 int pulse_counter=0;
 bool pulse_done=false;
-const int threshold=10;//!
+const int threshold=10;
 /**
  * 初始化
  */

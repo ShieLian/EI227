@@ -12,11 +12,10 @@ double volt=0.0;
 //key 5
 void init_adc(){
     ADC10CTL0 = ADC10SHT_2 + ADC10ON + ADC10IE;
-    ADC10CTL0|=SREF_0; // ADC10ON, interrupt enabled,16*ADC41CLKs
+    ADC10CTL0|=SREF_0;                        // ADC10ON, interrupt enabled,16*ADC41CLKs
     ADC10CTL1 = INCH_5;                       // input A1
     ADC10AE0 |= BIT5;                         // PA.1 ADC option select
-    P1DIR |= BIT6;                            // Set P1.0 to output direction
-    P1OUT |= BIT6;
+    set_output(P1,BIT6);                      //简易指示灯
 }
 
 int interval=0;
@@ -27,7 +26,7 @@ void update_autoamp_inter(){
         --interval;
         return;
     }
-    if(volt>2.25){//4.8V
+    if(volt>2.25){//4.8Vp
         if(level!=1){
             --level;
         }
@@ -55,7 +54,6 @@ void update_en(){
 void update_autoamp(){
     update_en();
     ADC10CTL0 |= ENC + ADC10SC;             // Sampling and conversionstart
-    //__bis_SR_register(CPUOFF + GIE);        // LPM0, ADC10_ISR will force exit
     if (ADC10MEM < 0x1FF)
         P1OUT &= ~BIT6;                       // Clear P1.0 LED off
     else
@@ -69,5 +67,5 @@ void update_autoamp(){
 
 #pragma vector=ADC10_VECTOR
 __interrupt void ADC10_ISR(void){
-  //__bic_SR_register_on_exit(CPUOFF);        // Clear CPUOFF bit from 0(SR)
+  //ADC转换中断，无用
 }

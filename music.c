@@ -10,9 +10,7 @@ void Init_Ports_music(void)
 	set_output(P2,0x2);   //将P2.1设置为输出
 }
 
-//****************************************************************************
-//*********************************增加部分分鸽线*******************************
-//****************************************************************************
+//****************************************************************
 enum note{do_=262,re=294,mi=330,fa=349,so=392,la=440,ti=494,
           $do=523,$re=587,$mi=659,$fa=698,$so=784,$la=880,$ti=988,
           $$do = 1047, $$re = 1174, $$mi = 1318};
@@ -98,23 +96,18 @@ const unsigned int music_data1[][2] =   //乐谱：荷塘月色。
      {880,200},{784,200},{659,200},{587,200},{523,800},
      {440,200},{523,200},{440,200},{392,200},{587,400},{659,400},{523,1200},{0,400},
      {0,0}
-
-
 };
 unsigned int audio_frequency = 0;  //当前音频频率
 unsigned int audio_dura = 0;  //当前音频持续时间
 unsigned int audio_ptr = 0;  //辅助读谱指针
 unsigned int play_flag = 0;  //音乐播放标志。0时不播放，1时开始播放
-unsigned int speed = 20;       //变速
-unsigned int mode = 1; //输出方式标志
-unsigned int end_flag = 1;  //模式2-下个音符指针
+unsigned int speed = 20;//播放速度
+unsigned int mode = 1; //播放模式标志
 extern int levelmask=0;
-double freq_multi=1.0;
-//unsigned int changespeed_flag = 0;
+double freq_multi=1.0;//频率因子
 void Init_Timer1(void)   //初始化计数器A1
 {
     if(mode == 1){
-        //TA1CTL = TASSEL_2 + MC_1;
         TA1CCTL1 = OUTMOD_7;
         TA1CCR0 = 1000000/440;  //设定周期，100000为定时器1的时钟频率，440为音频频率
         TA1CCR1 = TA1CCR0/2;  //设置占空比为50%
@@ -200,10 +193,17 @@ void update_music(void)
  * 主程序更新控制信号
  */
 void update_play_flag(){
-    if(key_code == 3 && play_flag != 3) {TA1CTL = 0; audio_ptr = 0; play_flag = 3;}  //将3号按钮作为播放音乐1的控制开关
-    if(key_code == 4 && play_flag != 4) {TA1CTL = 0; audio_ptr = 0; play_flag = 4;}  //将4号按钮作为播放音乐2的控制开关
-    if(key_code == 16) {TA1CTL = 0; audio_ptr = 0; play_flag = 0;}
+    if(key_code == 3 && play_flag != 3){
+        TA1CTL = 0; audio_ptr = 0; play_flag = 3;
+    }  //将3号按钮作为播放音乐1的控制开关
+    if(key_code == 4 && play_flag != 4){
+        TA1CTL = 0; audio_ptr = 0; play_flag = 4;
+    }  //将4号按钮作为播放音乐2的控制开关
+    if(key_code == 16){
+        TA1CTL = 0; audio_ptr = 0; play_flag = 0;
+    }
 }
+
 bool update_speed=false;
 void update_play_speed(){
     if(!update_speed & key_code == 7){
@@ -222,6 +222,7 @@ void update_play_speed(){
     if(update_speed & key_code==0)
         update_speed=false;
 }
+
 bool update_mode=false;
 void update_play_mode(){
     if(!update_mode & key_code==15){
@@ -234,9 +235,9 @@ void update_play_mode(){
 
     led[0]=(unsigned char)mode;
 }
+
 bool update_freq=false;
 int freq_level=0;
-
 void update_requency(){
     if(!update_freq & key_code == 11){
         freq_multi/=2;
@@ -271,7 +272,6 @@ void update_requency(){
                 divcounter=0;
             }
         }
-
     }else
         led[1]=0;
     if(divcounter==25)
@@ -288,7 +288,7 @@ void update_music_ctrl(void)
 
 ////////////播放方案2///////////////
 /**
- * 变时长中断，用于产生4路方波
+ * 变时长中断，用于根据level产生“四路”方波
  */
 int togglestate=0;
 #pragma vector=TIMER1_A0_VECTOR

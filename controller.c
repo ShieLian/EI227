@@ -10,8 +10,6 @@
 
 // 0.1s软件定时器溢出值，5个20ms
 #define V_T100ms	5
-// 0.5s软件定时器溢出值，25个20ms
-#define V_T500ms	25
 
 //////////////////////////////
 //       变量定义           //
@@ -19,10 +17,8 @@
 
 // 软件定时器计数
 unsigned char clock100ms=0;
-unsigned char clock500ms=0;
 // 软件定时器溢出标志
 unsigned char clock100ms_flag=0;
-unsigned char clock500ms_flag=0;
 // 测试用计数器
 unsigned int test_counter=0;
 // 8位数码管显示的数字或字母符号
@@ -68,7 +64,7 @@ void set_output(enum PIN pin,unsigned char port){
 void Init_Ports(void)
 {
 	P2SEL &= ~(BIT7+BIT6);       //P2.6、P2.7 设置为通用I/O端口
-	  //因两者默认连接外晶振，故需此修改
+	//因两者默认连接外晶振，故需此修改
 
 	P2DIR |= BIT7 + BIT6 + BIT5; //P2.5、P2.6、P2.7 设置为输出
 	set_output(P1,0xF);
@@ -118,29 +114,19 @@ __interrupt void Timer0_A0 (void)
 		clock100ms_flag = 1; //当0.1秒到时，溢出标志置1
 		clock100ms = 0;
 	}
- 	// 0.5秒钟软定时器计数
-	if (++clock500ms>=V_T500ms)
-	{
-		clock500ms_flag = 1; //当0.5秒到时，溢出标志置1
-		clock500ms = 0;
-	}
 	// 刷新全部数码管和LED指示灯
-	//TM1638_RefreshDIGIandLED(digit,pnt,led);
 	TM1638_RefreshDIGIandLED(digit,pnt,led);
 
 	// 检查当前键盘输入，0代表无键操作，1-16表示有对应按键
-	//   键号显示在两位数码管上
 	key_code=TM1638_Readkeyboard();
 
-	//
+	//调用扩展模块
 	update_music();
 	update_remote_inter();
 	update_autoamp_inter();
 }
 
-//////////////////////////////
-//         主程序           //
-//////////////////////////////
+
 
 void update_level(void){
     if(!upgraded){
@@ -168,6 +154,9 @@ void update_level(void){
     }
 }
 
+//////////////////////////////
+//         主程序           //
+//////////////////////////////
 int main(void)
 {
 	//unsigned char i=0,temp;
@@ -183,16 +172,10 @@ int main(void)
 		if (clock100ms_flag==1)   // 检查0.1秒定时是否到
 		{
 			clock100ms_flag=0;
-		   	// 每0.1秒累加计时值在数码管上以十进制显示，有键按下时暂停计时
             //更新增益等级
             update_level();
 		}
-
-		if (clock500ms_flag==1)   // 检查0.5秒定时是否到
-		{
-			clock500ms_flag=0;
-		}
-
+		//调用扩展模块
 		update_music_ctrl();
 		update_remote_ctrl();
 		update_autoamp();
